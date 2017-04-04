@@ -265,3 +265,14 @@ CLIENT_ID = json.loads(
 
 oauth_flow = flow_from_clientsecrets('/var/www/itemsCatalog/vagrant/catalog/client_secrets.json', scope='')
 ```
+
+#Bibiliography
+
+1. [Setting Permissions for LightSail Pem file](http://unix.stackexchange.com/questions/115838/what-is-the-right-file-permission-for-a-pem-file-to-ssh-and-scp)
+2. [Abshishek Ghosh](https://github.com/ghoshabhi/P5-Linux-Config)
+3. [Digital Ocean setting VPS on ubuntu](https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps)
+4. [Oauth Error on apache2](https://discussions.udacity.com/t/oauth-error-on-apache2-linux-server/235498/7)
+5. [Cannot SSH into ports](https://discussions.udacity.com/t/cannot-ssh-after-changing-ports/224971/14)
+6. [Abigail Matthews](https://github.com/AbigailMathews/FSND-P5)
+7. [Steven Wooding](https://github.com/SteveWooding/fullstack-nanodegree-linux-server-config)
+8. [Flask Config](http://flask.pocoo.org/docs/0.12/config/)
