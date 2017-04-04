@@ -40,7 +40,7 @@ Once you into your accounts page, there is an option to download the default pri
 To see if you can login into instance. Two things need to be done:
 
 1. You need to change permission of the downloaded lightsail private key.
-`chmod 400 LightsailDefaultPrivateKey.pem`
+`chmod 400 LightsailDefaultPrivateKey.pem` or `chmod 600 LightsailDefaultPrivateKey.pem`
 
 2. To login:
 `ssh user@PublicIP -i LightsailDefaultPrivateKey`
@@ -151,10 +151,6 @@ sudo dpkg-reconfigure tzdata
 ```
 Choose none of the above and choose UTC.  The server by default is on UTC.
 
-## Install PostGreSql
-Install PostGreSql
-`sudo apt-get install postgresql`
-Check the configuration only local
 ## Install Apache, Git, and flask
 
 ### Apache
@@ -169,7 +165,103 @@ sudo apt-get install libapache2-mod-wsgi python-dev
 ```
 We need to enable mod wsgi if it isn't enabled: `sudo a2enmod wsgi`
 
+Let's setup wsgi file and sites-available conf file for our application.
+Create the WSGI file in `path/to/the/application directory`
+```
+WSGI file
+
+import sys
+import logging
+
+logging.basicConfig(stream=sys.stderr)
+sys.path.insert(0, '/var/www/itemsCatalog/vagrant/catalog')
+
+from application import app as application
+application.secret_key='super_secret_key'
+```
+Please note application.py is my python file. Wherever you housed your application logic.
+
+To setup a virtual host file: `cd /etc/apache2/sites-available/itemsCatalog.conf`:
+```
+Virtual Host file
+<VirtualHost *:80>
+     ServerName  PublicIP
+     ServerAdmin email address
+     #Location of the items-catalog WSGI file
+     WSGIScriptAlias / /var/www/itemsCatalog/vagrant/catalog/itemsCatalog.wsgi
+     #Allow Apache to serve the WSGI app from our catalog directory
+     <Directory /var/www/itemsCatalog/vagrant/catalog>
+          Order allow,deny
+          Allow from all
+     </Directory>
+     #Allow Apache to deploy static content
+     <Directory /var/www/itemsCatalog/vagrant/catalog/static>
+        Order allow,deny
+        Allow from all
+     </Directory>
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      LogLevel warn
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+```
 ### Git
 `sudo apt-get install git`
 
+Clone repository into the apache directory. In the `cd /var/www`
+
+```
+mkdir itemsCatalog
+cd /var/www/itemsCatalog
+
+sudo git clone https://github.com/harushimo/fullstack-nanodegree-vm.git  itemsCatalog
+```
+
 ### Flask
+Do these commands:
+
+```
+sudo apt-get install python-pip python-flask python-sqlalchemy python-psycopg2
+sudo pip install oauth2client requests httplib2
+```
+
+## Install PostGreSql
+Install PostGreSql `sudo apt-get install postgresql`
+To make sure remote are not allowed, please check the following configuration file: `sudo nano /etc/postgresql/9.5/main/pg_hba.conf`
+
+### Create database
+`sudo su - postgres`
+Type in `psql` as postgres user
+
+Do following the commands:
+```
+postgres=# CREATE USER catalog WITH PASSWORD 'catalog';
+postgres=# ALTER USER catalog CREATEDB;
+postgres=# CREATE DATABASE catalog WITH OWNER catalog;
+```
+Connect to the catalog database: `\c catalog`
+```
+catalog=# REVOKE ALL ON SCHEMA public FROM public;
+catalog=# GRANT ALL ON SCHEMA public TO catalog;
+```
+Exit postgres and postgres user
+```
+postgres=# \q
+postgres@PublicIP~$ exit
+```
+
+We need to update our database setup and application python files to illustrate the new engine connection
+`engine = create_engine('postgresql://catalog:catalog@localhost/catalog')`
+
+Run `sudo python database_setup.py`
+
+## Oauth Client Login
+
+To setup it up. Update the path in the application.py program. Update the client id and oauth_flow
+
+```
+CLIENT_ID = json.loads(
+    open('/var/www/itemsCatalog/vagrant/catalog/client_secrets.json', 'r').read())['web']['client_id']
+
+oauth_flow = flow_from_clientsecrets('/var/www/itemsCatalog/vagrant/catalog/client_secrets.json', scope='')
+```
