@@ -2,6 +2,10 @@
 
 We are deploying a flask application on to AWS Light Sail.  This document will give you steps from creating your instance to your application.  At the time when this document is written, ubuntu 16.06 LTS is the standard. Here is the final website link: [VenueFinder](http://34.205.85.140/venuefinder/)
 
+IP address: 34.205.85.140
+Port: 2200
+
+
 Please view this [github](https://github.com/harushimo/fullstack-nanodegree-vm.git) to use the application
 
 ## Creating your LightSail Instance for ubuntu
@@ -88,7 +92,7 @@ We've created our new user, lets configure our ssh to non-default port
 
 SSH default port is 22. We want to configure it to non default port.  Since we are using LightSail, we need to open the non default port through the web interface. If you don't do this step, you'll be locked out of the instance. Go to the networking tab on the management console. Then, the firewall option
 
-![LightSail firewall](/images/ligtsailfirewall.png)
+![LightSail firewall](/images/lightsailfirewall.png)
 
 Go into your sshd config file: `sudo nano /etc/ssh/sshd_config`
 Change the following options. # means commented out
@@ -119,6 +123,53 @@ Two things will happen:
 
 Once the keys are generated, you'll need to login to the user account aka grader here:
 You'll make a directory for ssh and store the public key in an authorized_keys files
-```
 
 ```
+mkdir .ssh
+cd .ssh
+```
+When you are in the directory, create an authorized_keys file. This where you paste the public key that you generated on your local machine.
+```
+sudo nano authorized_keys
+```
+Please double check your path by pwd. You should be in your `/home/grader/.ssh/` when creating the file. You should be login with grader account using the private key from local machine into the server: `ssh user@PublicIP -i ~/.ssh/whateverfile_id_rsa`
+
+## Configuring Firewall rules using UFW
+We need to configure firewall rules using UFW. Check to see if ufw is active: `sudo ufw status`. If not active, lets add some rules
+```
+sudo ufw default deny incoming
+sudo ufw default allow outgoing
+sudo ufw allow 2200/tcp
+sudo ufw allow 80/tcp or sudo ufw allow www (either one of these commands will work)
+sudo ufw allow 123/udp
+```
+Now, you enable the rules: `sudo ufw enable` and re check the status to see what rules are activity
+
+## Configure timezone for server
+```
+sudo dpkg-reconfigure tzdata
+```
+Choose none of the above and choose UTC.  The server by default is on UTC.
+
+## Install PostGreSql
+Install PostGreSql
+`sudo apt-get install postgresql`
+Check the configuration only local
+## Install Apache, Git, and flask
+
+### Apache
+We will be installing apache on our server. To do that:
+
+```
+sudo apt-get install apache2
+```
+If apache was setup correctly, a welcome page will come up when you use the PublicIP. We are going to install mod wsgi, python setup tools, and python-dev
+```
+sudo apt-get install libapache2-mod-wsgi python-dev
+```
+We need to enable mod wsgi if it isn't enabled: `sudo a2enmod wsgi`
+
+### Git
+`sudo apt-get install git`
+
+### Flask
