@@ -26,14 +26,14 @@ Please view this [github](https://github.com/harushimo/fullstack-nanodegree-vm.g
 
 ![Choose Instance Plan](/images/choose_instance_plan.png)
 
-You can name your instance to your if you want.  They give an option to change the instance name.
+You can name your instance or just leave the default name provided by AWS .  They give an option to change the instance name.
 
-Once we have created our ubuntu image, now we need to start configuring our server to deploy our flask application.
+Once we have created our ubuntu image, now we need to start configuring the server to deploy our flask application.
 
 ## Accessing the instance
 
-Before setting the server, we need to download the lightsail pem file from the LightSail website.  In order to get the file, you need to go the accounts page.
-Once you into your accounts page, there is an option to download the default private key.
+Before setting up the server, we need to download the lightsail pem file from the LightSail website.  In order to get the file, you need to go the accounts page.
+Once you are in the accounts page, there is an option to download the default private key.
 
 ![Light Sail Private Key](/images/lightsail_private_key.png)
 
